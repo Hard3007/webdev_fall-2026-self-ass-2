@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fogline Stays | San Francisco Airbnb Listings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --fog: #E3E8EB;
+      --paper: #FFFFFF;
+      --bay: #16283A;
+      --steel: #5A6B79;
+      --orange: #C0362C;
+      --cypress: #2F6F62;
+      --line: #C9D2D8;
+      --display: "Bricolage Grotesque", system-ui, sans-serif;
+      --body: "Atkinson Hyperlegible", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--body); background: var(--fog); color: var(--bay); line-height: 1.5; }
+    img { display: block; max-width: 100%; }
+    button, input, select { font: inherit; color: inherit; }
+    :focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+    /* Header */
+    .site-header { background: var(--bay); color: #fff; position: sticky; top: 0; z-index: 50; }
+    .site-header .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
+    .brand { font-family: var(--display); font-weight: 800; font-size: 1.35rem; letter-spacing: -0.01em; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+    .brand svg { width: 30px; height: 20px; }
+    .site-nav { display: flex; gap: 6px; align-items: center; }
+    .site-nav a { color: #D5DEE5; text-decoration: none; padding: 8px 12px; border-radius: 4px; }
+    .site-nav a:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+    .saved-toggle { background: var(--orange); color: #fff; border: 0; padding: 8px 14px; border-radius: 999px; cursor: pointer; font-weight: 700; }
+    .saved-toggle .count { display: inline-block; min-width: 1.5em; margin-left: 6px; background: #fff; color: var(--orange); border-radius: 999px; padding: 0 6px; font-size: 0.85rem; text-align: center; }
+
+    /* Hero: the one bold moment is the bridge drawing itself */
+    .hero { background: var(--bay); color: #fff; padding-top: 56px; overflow: hidden; }
+    .hero h1 { font-family: var(--display); font-weight: 800; font-size: clamp(2.4rem, 6vw, 4.6rem); line-height: 1; letter-spacing: -0.03em; max-width: 13ch; }
+    .hero p { color: #C6D1DA; max-width: 52ch; margin-top: 20px; font-size: 1.1rem; }
+    .bridge { display: block; width: 100%; height: auto; margin-top: 28px; }
+    .bridge path { fill: none; stroke: var(--orange); stroke-width: 3; stroke-linecap: round; }
+    .bridge .deck { stroke-width: 5; }
+    .bridge .water { stroke: #2C4257; stroke-width: 1.5; }
+    .draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 2.2s ease-out 0.2s forwards; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+
+    /* Main */
+    main { padding: 44px 0 80px; }
+    .section-title { font-family: var(--display); font-weight: 700; font-size: 1.6rem; letter-spacing: -0.01em; }
+    .section-sub { color: var(--steel); margin: 4px 0 18px; }
+    .hoods { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 36px; }
+    .hood { border: 1px solid var(--line); background: var(--paper); padding: 6px 14px; border-radius: 999px; cursor: pointer; }
+    .hood small { color: var(--steel); margin-left: 4px; }
+    .hood[aria-pressed="true"] { background: var(--cypress); border-color: var(--cypress); color: #fff; }
+    .hood[aria-pressed="true"] small { color: #D6EAE4; }
+
+    .toolbar { display: grid; grid-template-columns: 2fr 1fr 1fr 1.4fr auto; gap: 12px; align-items: end; background: var(--paper); padding: 16px; border-radius: 6px; border: 1px solid var(--line); }
+    .field { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; color: var(--steel); }
+    .field input[type="search"], .field select { border: 1px solid var(--line); border-radius: 4px; padding: 9px 12px; background: #fff; color: var(--bay); }
+    .field input[type="range"] { accent-color: var(--orange); height: 38px; }
+    .view-toggle { display: flex; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+    .view-toggle button { border: 0; background: #fff; padding: 9px 14px; cursor: pointer; }
+    .view-toggle button[aria-pressed="true"] { background: var(--bay); color: #fff; }
+    .result-count { margin: 20px 0 12px; color: var(--steel); }
+
+    /* Listings */
+    .results.list { display: flex; flex-direction: column; gap: 16px; }
+    .results.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+    .stay { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; }
+    .results.list .stay { display: grid; grid-template-columns: 260px 1fr; }
+    .stay:hover { border-color: var(--bay); }
+    .stay-img { width: 100%; height: 100%; min-height: 190px; object-fit: cover; background: #CBD5DC; }
+    .results.grid .stay-img { height: 190px; }
+    .stay-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+    .stay-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+    .stay-name { font-family: var(--display); font-weight: 700; font-size: 1.15rem; line-height: 1.2; }
+    .save-btn { flex: none; border: 1px solid var(--line); background: #fff; border-radius: 999px; width: 36px; height: 36px; cursor: pointer; font-size: 1.1rem; line-height: 1; color: var(--steel); }
+    .save-btn[aria-pressed="true"] { background: var(--orange); border-color: var(--orange); color: #fff; }
+    .stay-where { color: var(--cypress); font-weight: 700; font-size: 0.9rem; }
+    .stay-desc { color: var(--steel); font-size: 0.93rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { font-size: 0.8rem; background: var(--fog); border-radius: 3px; padding: 2px 8px; }
+    .stay-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-top: auto; padding-top: 10px; border-top: 1px solid var(--fog); }
+    .host { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--steel); }
+    .host img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; background: var(--fog); flex: none; }
+    .money { text-align: right; }
+    .price { font-family: var(--display); font-weight: 700; font-size: 1.2rem; }
+    .price small { font-family: var(--body); font-weight: 400; color: var(--steel); font-size: 0.85rem; }
+    .rating { font-size: 0.88rem; color: var(--steel); }
+    .message { background: var(--paper); border: 1px dashed var(--line); padding: 40px; text-align: center; color: var(--steel); border-radius: 6px; }
+
+    /* Detail dialog */
+    dialog { border: 0; border-radius: 8px; max-width: 680px; width: calc(100% - 32px); padding: 0; color: var(--bay); margin: auto; }
+    dialog::backdrop { background: rgba(22, 40, 58, 0.65); }
+    .d-close { position: absolute; top: 12px; right: 12px; background: #fff; border: 0; border-radius: 999px; width: 36px; height: 36px; cursor: pointer; font-size: 1.1rem; }
+    .d-img { width: 100%; height: 260px; object-fit: cover; background: #CBD5DC; }
+    .d-body { padding: 24px 28px 28px; display: flex; flex-direction: column; gap: 14px; }
+    .d-title { font-family: var(--display); font-weight: 800; font-size: 1.6rem; line-height: 1.15; letter-spacing: -0.01em; padding-right: 24px; }
+    .d-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+    .d-desc { color: #3A4B59; max-height: 12em; overflow: auto; }
+    .calc { background: var(--fog); border-radius: 6px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .stepper { display: flex; align-items: center; gap: 8px; }
+    .stepper button { width: 32px; height: 32px; border-radius: 4px; border: 1px solid var(--line); background: #fff; cursor: pointer; }
+    .calc-total { font-family: var(--display); font-weight: 700; font-size: 1.3rem; }
+    .d-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn { padding: 10px 18px; border-radius: 4px; border: 1px solid var(--bay); background: #fff; cursor: pointer; text-decoration: none; color: var(--bay); font-weight: 700; }
+    .btn.primary { background: var(--orange); border-color: var(--orange); color: #fff; }
+
+    /* Saved stays drawer */
+    .drawer { position: fixed; top: 0; right: 0; height: 100%; width: min(380px, 100%); background: var(--paper); box-shadow: -8px 0 30px rgba(22, 40, 58, 0.2); transform: translateX(100%); visibility: hidden; transition: transform 0.25s ease, visibility 0.25s; z-index: 60; display: flex; flex-direction: column; }
+    .drawer.open { transform: none; visibility: visible; }
+    .drawer-head { padding: 20px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+    .drawer-head h2 { font-family: var(--display); font-size: 1.3rem; }
+    .drawer-list { flex: 1; overflow: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; list-style: none; }
+    .saved-item { display: grid; grid-template-columns: 56px 1fr auto; gap: 10px; align-items: center; }
+    .saved-item img, .saved-item .ph { width: 56px; height: 56px; object-fit: cover; border-radius: 4px; background: var(--fog); }
+    .saved-item .open-link { background: none; border: 0; text-align: left; cursor: pointer; font-weight: 700; line-height: 1.25; }
+    .saved-item .sub { font-size: 0.85rem; color: var(--steel); }
+    .link-btn { border: 0; background: none; color: var(--steel); cursor: pointer; text-decoration: underline; }
+    .drawer-foot { padding: 16px 20px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+    .site-footer { background: var(--bay); color: #C6D1DA; padding: 28px 0; font-size: 0.9rem; }
+
+    @media (max-width: 860px) {
+      .toolbar { grid-template-columns: 1fr 1fr; }
+      .toolbar .search { grid-column: 1 / -1; }
+    }
+    @media (max-width: 640px) {
+      .site-nav a { display: none; }
+      .toolbar { grid-template-columns: 1fr; }
+      .results.list .stay { grid-template-columns: 1fr; }
+      .results.list .stay-img { height: 190px; }
+      .stay-foot { flex-direction: column; align-items: flex-start; }
+      .money { text-align: left; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .draw { animation: none; stroke-dashoffset: 0; }
+      .drawer { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="#top">
+        <svg viewBox="0 0 30 20" aria-hidden="true"><path d="M1 14 Q8 4 15 4 Q22 4 29 14 M8 20V6 M22 20V6 M1 14H29" fill="none" stroke="#C0362C" stroke-width="2.4" stroke-linecap="round"/></svg>
+        Fogline Stays
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="#neighborhoods">Neighborhoods</a>
+        <a href="#listings">Listings</a>
+        <button class="saved-toggle" id="saved-toggle" aria-expanded="false" aria-controls="drawer">Saved<span class="count" id="saved-count">0</span></button>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero" id="top">
+    <div class="wrap">
+      <h1>Fifty places to stay in San Francisco</h1>
+      <p>Browse real Airbnb listings from across the city. Filter by neighborhood and budget, save the ones you like, and see what a few nights would cost.</p>
+    </div>
+    <svg class="bridge" viewBox="0 0 1200 220" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+      <path class="draw" pathLength="1" d="M0 140 Q190 60 380 40" />
+      <path class="draw" pathLength="1" d="M380 40 Q600 175 820 40" />
+      <path class="draw" pathLength="1" d="M820 40 Q1010 60 1200 140" />
+      <path class="draw" pathLength="1" d="M370 205V30 M390 205V30 M370 70H390" />
+      <path class="draw" pathLength="1" d="M810 205V30 M830 205V30 M810 70H830" />
+      <path class="draw" pathLength="1" d="M490 91V150 M600 108V150 M710 91V150 M190 88V150 M1010 88V150" />
+      <path class="draw deck" pathLength="1" d="M0 150H1200" />
+      <path class="water" d="M0 206H1200 M80 214H1120" />
+    </svg>
+  </section>
+
+  <main class="wrap">
+    <section id="neighborhoods">
+      <h2 class="section-title">Browse by neighborhood</h2>
+      <p class="section-sub">Counts show how many of the 50 listings are in each area.</p>
+      <div class="hoods" id="hoods"></div>
+    </section>
+
+    <section id="listings">
+      <h2 class="section-title">Listings</h2>
+      <p class="section-sub">Select a stay to see full details and estimate the cost of your trip.</p>
+
+      <div class="toolbar">
+        <label class="field search">Search
+          <input type="search" id="search" placeholder="Listing name or neighborhood" />
+        </label>
+        <label class="field">Room type
+          <select id="room">
+            <option value="">Any</option>
+            <option value="Entire home/apt">Entire home</option>
+            <option value="Private room">Private room</option>
+            <option value="Shared room">Shared room</option>
+            <option value="Hotel room">Hotel room</option>
+          </select>
+        </label>
+        <label class="field">Sort
+          <select id="sort">
+            <option value="">Original order</option>
+            <option value="price-asc">Lowest price</option>
+            <option value="price-desc">Highest price</option>
+            <option value="rating">Highest rated</option>
+            <option value="name">Name, A to Z</option>
+          </select>
+        </label>
+        <label class="field"><span id="price-label">Up to any price a night</span>
+          <input type="range" id="price" min="0" max="1000" step="10" value="1000" />
+        </label>
+        <div class="view-toggle" role="group" aria-label="Layout">
+          <button data-view="list" aria-pressed="true">List</button>
+          <button data-view="grid" aria-pressed="false">Grid</button>
+        </div>
+      </div>
+
+      <p class="result-count" id="count" aria-live="polite">Loading listings…</p>
+      <div class="results list" id="results"></div>
+    </section>
+  </main>
+
+  <dialog id="detail" aria-labelledby="d-title">
+    <button class="d-close" id="d-close" aria-label="Close details">✕</button>
+    <div id="d-content"></div>
+  </dialog>
+
+  <aside class="drawer" id="drawer" aria-label="Saved stays">
+    <div class="drawer-head">
+      <h2>Saved stays</h2>
+      <button class="link-btn" id="drawer-close">Close</button>
+    </div>
+    <ul class="drawer-list" id="saved-list"></ul>
+    <div class="drawer-foot">
+      <div class="stepper">
+        <button data-step="-1" aria-label="One fewer night">−</button>
+        <span id="s-nights">3 nights</span>
+        <button data-step="1" aria-label="One more night">+</button>
+      </div>
+      <button class="link-btn" id="clear-saved">Clear saved stays</button>
+    </div>
+  </aside>
+
+  <footer class="site-footer">
+    <div class="wrap">Hard Gondaliya, CS5610 Web Development, Northeastern University, Spring 2026. Listing data from Inside Airbnb.</div>
+  </footer>
+
+  <script>
+    const DATA_URL = "airbnb_sf_listings_500.json";
+    const STORE_KEY = "fogline-saved";
+
+    const state = {
+      all: [],
+      search: "",
+      room: "",
+      sort: "",
+      hood: "",
+      maxPrice: Infinity,
+      priceCeiling: Infinity,
+      view: "list",
+      nights: 3,
+      saved: new Set(loadSaved()),
+      current: null
+    };
+
+    const $ = (sel) => document.querySelector(sel);
+
+    // ---------- helpers ----------
+    function esc(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+    function parsePrice(p) {
+      const n = parseFloat(String(p ?? "").replace(/[$,]/g, ""));
+      return Number.isFinite(n) ? n : null;
+    }
+    function money(n) {
+      return n == null ? "Price not listed" : "$" + Math.round(n).toLocaleString();
+    }
+    function toText(html) {
+      // DOMParser never runs scripts, so it's a safe way to strip HTML tags
+      const doc = new DOMParser().parseFromString(html || "", "text/html");
+      return doc.body.textContent.replace(/\s+/g, " ").trim();
+    }
+    function amenityList(a) {
+      try {
+        const v = Array.isArray(a) ? a : JSON.parse(a || "[]");
+        return Array.isArray(v) ? v : [];
+      } catch (e) { return []; }
+    }
+    function ratingText(r) {
+      const n = parseFloat(r);
+      return Number.isFinite(n) ? "★ " + n.toFixed(2) : "No reviews yet";
+    }
+    function nightsText(n) { return n + (n === 1 ? " night" : " nights"); }
+    function loadSaved() {
+      try { return JSON.parse(localStorage.getItem(STORE_KEY) || "[]"); } catch (e) { return []; }
+    }
+    function persistSaved() {
+      try { localStorage.setItem(STORE_KEY, JSON.stringify([...state.saved])); } catch (e) {}
+    }
+
+    // ---------- load data with fetch + await ----------
+    async function loadListings() {
+      try {
+        const res = await fetch(DATA_URL);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        state.all = data.slice(0, 50).map((l, i) => ({ ...l, _i: i, _price: parsePrice(l.price) }));
+        setupPriceSlider();
+        renderHoods();
+        renderListings();
+        renderSaved();
+      } catch (err) {
+        console.error(err);
+        $("#count").textContent = "";
+        $("#results").innerHTML =
+          '<p class="message">Listings couldn’t load. Keep <code>airbnb_sf_listings_500.json</code> in the same folder as this page, and open it through a local server such as VS Code Live Server.</p>';
+      }
+    }
+
+    function setupPriceSlider() {
+      const prices = state.all.map((l) => l._price).filter((p) => p != null);
+      const ceiling = Math.ceil(Math.max(...prices, 100) / 10) * 10;
+      const slider = $("#price");
+      slider.max = ceiling;
+      slider.value = ceiling;
+      state.priceCeiling = ceiling;
+      state.maxPrice = ceiling;
+      updatePriceLabel();
+    }
+    function updatePriceLabel() {
+      $("#price-label").textContent = state.maxPrice >= state.priceCeiling
+        ? "Up to any price a night"
+        : "Up to " + money(state.maxPrice) + " a night";
+    }
+
+    // ---------- filter + sort ----------
+    function visibleListings() {
+      const q = state.search.toLowerCase();
+      const out = state.all.filter((l) => {
+        const name = (l.name || "").toLowerCase();
+        const hood = (l.neighbourhood_cleansed || "").toLowerCase();
+        return (!q || name.includes(q) || hood.includes(q)) &&
+          (!state.room || l.room_type === state.room) &&
+          (!state.hood || l.neighbourhood_cleansed === state.hood) &&
+          (l._price == null || l._price <= state.maxPrice);
+      });
+      const sorters = {
+        "price-asc": (a, b) => (a._price ?? Infinity) - (b._price ?? Infinity),
+        "price-desc": (a, b) => (b._price ?? -1) - (a._price ?? -1),
+        "rating": (a, b) => (parseFloat(b.review_scores_rating) || 0) - (parseFloat(a.review_scores_rating) || 0),
+        "name": (a, b) => (a.name || "").localeCompare(b.name || "")
+      };
+      return sorters[state.sort] ? out.sort(sorters[state.sort]) : out;
+    }
+
+    // ---------- render ----------
+    function listingCard(l) {
+      const name = l.name || "Untitled stay";
+      const saved = state.saved.has(l._i);
+      const where = [l.neighbourhood_cleansed || "San Francisco", l.room_type].filter(Boolean).join(", ");
+      const tags = amenityList(l.amenities).slice(0, 4).map((a) => '<span class="tag">' + esc(a) + "</span>").join("");
+      const img = l.picture_url
+        ? '<img class="stay-img" src="' + esc(l.picture_url) + '" alt="" loading="lazy" />'
+        : '<div class="stay-img"></div>';
+      const hostImg = l.host_thumbnail_url
+        ? '<img src="' + esc(l.host_thumbnail_url) + '" alt="" loading="lazy" />' : "";
+
+      return '<article class="stay" data-i="' + l._i + '" tabindex="0" aria-label="' + esc(name) + '">' +
+        img +
+        '<div class="stay-body">' +
+          '<div class="stay-head"><h3 class="stay-name">' + esc(name) + '</h3>' +
+            '<button class="save-btn" data-save="' + l._i + '" aria-pressed="' + saved + '" aria-label="' +
+              (saved ? "Remove from saved stays" : "Save this stay") + '">' + (saved ? "♥" : "♡") + "</button></div>" +
+          '<p class="stay-where">' + esc(where) + "</p>" +
+          '<p class="stay-desc">' + esc(toText(l.description)) + "</p>" +
+          '<div class="tags">' + tags + "</div>" +
+          '<div class="stay-foot">' +
+            '<div class="host">' + hostImg + "<span>Hosted by " + esc(l.host_name || "a local host") + "</span></div>" +
+            '<div class="money"><div class="price">' + money(l._price) + (l._price != null ? " <small>a night</small>" : "") + "</div>" +
+            '<div class="rating">' + ratingText(l.review_scores_rating) + "</div></div>" +
+          "</div>" +
+        "</div></article>";
+    }
+
+    function renderListings() {
+      const list = visibleListings();
+      const box = $("#results");
+      box.className = "results " + state.view;
+      $("#count").textContent = "Showing " + list.length + " of " + state.all.length + " stays" +
+        (state.hood ? " in " + state.hood : "");
+      box.innerHTML = list.length
+        ? list.map(listingCard).join("")
+        : '<p class="message">No stays match these filters. Raise the price limit or choose all neighborhoods.</p>';
+    }
+
+    function renderHoods() {
+      const counts = {};
+      state.all.forEach((l) => {
+        const h = l.neighbourhood_cleansed;
+        if (h) counts[h] = (counts[h] || 0) + 1;
+      });
+      const hoods = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      $("#hoods").innerHTML =
+        '<button class="hood" data-hood="" aria-pressed="' + !state.hood + '">All neighborhoods <small>' + state.all.length + "</small></button>" +
+        hoods.map(([h, n]) =>
+          '<button class="hood" data-hood="' + esc(h) + '" aria-pressed="' + (state.hood === h) + '">' + esc(h) + " <small>" + n + "</small></button>"
+        ).join("");
+    }
+
+    // ---------- detail dialog with trip cost calculator ----------
+    function openDetail(i) {
+      const l = state.all[i];
+      if (!l) return;
+      state.current = i;
+      const amenities = amenityList(l.amenities);
+      const shown = amenities.slice(0, 14);
+      const extra = amenities.length - shown.length;
+      const desc = toText(l.description) || "The host hasn’t added a description.";
+
+      $("#d-content").innerHTML =
+        (l.picture_url ? '<img class="d-img" src="' + esc(l.picture_url) + '" alt="' + esc(l.name) + '" />' : "") +
+        '<div class="d-body">' +
+          '<h2 class="d-title" id="d-title">' + esc(l.name || "Untitled stay") + "</h2>" +
+          '<div class="d-meta">' +
+            '<span class="tag">' + esc(l.neighbourhood_cleansed || "San Francisco") + "</span>" +
+            (l.room_type ? '<span class="tag">' + esc(l.room_type) + "</span>" : "") +
+            '<span class="tag">' + ratingText(l.review_scores_rating) + "</span>" +
+          "</div>" +
+          '<div class="host">' +
+            (l.host_thumbnail_url ? '<img src="' + esc(l.host_thumbnail_url) + '" alt="" />' : "") +
+            "<span>Hosted by <strong>" + esc(l.host_name || "a local host") + "</strong></span></div>" +
+          '<p class="d-desc">' + esc(desc) + "</p>" +
+          '<div class="tags">' + shown.map((a) => '<span class="tag">' + esc(a) + "</span>").join("") +
+            (extra > 0 ? '<span class="tag">and ' + extra + " more</span>" : "") + "</div>" +
+          '<div class="calc">' +
+            '<div class="stepper">' +
+              '<button data-step="-1" aria-label="One fewer night">−</button>' +
+              '<span id="d-nights"></span>' +
+              '<button data-step="1" aria-label="One more night">+</button>' +
+            "</div>" +
+            '<div class="calc-total" id="d-total" aria-live="polite"></div>' +
+          "</div>" +
+          '<div class="d-actions">' +
+            '<button class="btn primary" id="d-save"></button>' +
+            (l.listing_url ? '<a class="btn" href="' + esc(l.listing_url) + '" target="_blank" rel="noopener">View on Airbnb</a>' : "") +
+          "</div>" +
+        "</div>";
+
+      updateDetail();
+      $("#detail").showModal();
+    }
+
+    function updateDetail() {
+      if (state.current == null || !$("#d-total")) return;
+      const l = state.all[state.current];
+      $("#d-nights").textContent = nightsText(state.nights);
+      $("#d-total").textContent = l._price == null
+        ? "Price not listed"
+        : money(l._price * state.nights) + " total";
+      $("#d-save").textContent = state.saved.has(l._i) ? "Remove from saved" : "Save this stay";
+    }
+
+    // ---------- saved stays drawer ----------
+    function toggleSave(i) {
+      state.saved.has(i) ? state.saved.delete(i) : state.saved.add(i);
+      persistSaved();
+      renderListings();
+      renderSaved();
+      updateDetail();
+    }
+
+    function renderSaved() {
+      const items = state.all.filter((l) => state.saved.has(l._i));
+      $("#saved-count").textContent = items.length;
+      $("#s-nights").textContent = nightsText(state.nights);
+      $("#saved-list").innerHTML = items.length
+        ? items.map((l) =>
+            '<li class="saved-item">' +
+              (l.picture_url ? '<img src="' + esc(l.picture_url) + '" alt="" />' : '<div class="ph"></div>') +
+              "<div>" +
+                '<button class="open-link" data-open="' + l._i + '">' + esc(l.name || "Untitled stay") + "</button>" +
+                '<div class="sub">' + (l._price == null ? "Price not listed" :
+                  money(l._price) + " × " + nightsText(state.nights) + " = " + money(l._price * state.nights)) + "</div>" +
+              "</div>" +
+              '<button class="link-btn" data-remove="' + l._i + '">Remove</button>' +
+            "</li>").join("")
+        : '<li class="sub">Select ♡ on any stay to save it here and compare trip costs side by side.</li>';
+    }
+
+    function setNights(delta) {
+      state.nights = Math.min(30, Math.max(1, state.nights + delta));
+      renderSaved();
+      updateDetail();
+    }
+
+    function setDrawer(open) {
+      $("#drawer").classList.toggle("open", open);
+      $("#saved-toggle").setAttribute("aria-expanded", open);
+      if (open) $("#drawer-close").focus();
+    }
+
+    // ---------- events ----------
+    $("#search").addEventListener("input", (e) => { state.search = e.target.value.trim(); renderListings(); });
+    $("#room").addEventListener("change", (e) => { state.room = e.target.value; renderListings(); });
+    $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; renderListings(); });
+    $("#price").addEventListener("input", (e) => { state.maxPrice = Number(e.target.value); updatePriceLabel(); renderListings(); });
+
+    document.querySelectorAll(".view-toggle button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.view = btn.dataset.view;
+        document.querySelectorAll(".view-toggle button").forEach((b) => b.setAttribute("aria-pressed", b === btn));
+        renderListings();
+      });
+    });
+
+    $("#hoods").addEventListener("click", (e) => {
+      const btn = e.target.closest(".hood");
+      if (!btn) return;
+      state.hood = btn.dataset.hood;
+      renderHoods();
+      renderListings();
+    });
+
+    $("#results").addEventListener("click", (e) => {
+      const save = e.target.closest("[data-save]");
+      if (save) { toggleSave(Number(save.dataset.save)); return; }
+      const card = e.target.closest(".stay");
+      if (card) openDetail(Number(card.dataset.i));
+    });
+    $("#results").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && e.target.classList.contains("stay")) openDetail(Number(e.target.dataset.i));
+    });
+
+    const dialog = $("#detail");
+    $("#d-close").addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) { dialog.close(); return; }
+      const step = e.target.closest("[data-step]");
+      if (step) setNights(Number(step.dataset.step));
+      if (e.target.id === "d-save") toggleSave(state.current);
+    });
+    dialog.addEventListener("close", () => { state.current = null; });
+
+    $("#saved-toggle").addEventListener("click", () => setDrawer(!$("#drawer").classList.contains("open")));
+    $("#drawer-close").addEventListener("click", () => setDrawer(false));
+    $("#clear-saved").addEventListener("click", () => { state.saved.clear(); persistSaved(); renderListings(); renderSaved(); });
+    $("#drawer").addEventListener("click", (e) => {
+      const step = e.target.closest("[data-step]");
+      if (step) setNights(Number(step.dataset.step));
+      const remove = e.target.closest("[data-remove]");
+      if (remove) toggleSave(Number(remove.dataset.remove));
+      const open = e.target.closest("[data-open]");
+      if (open) openDetail(Number(open.dataset.open));
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !dialog.open) setDrawer(false);
+    });
+
+    loadListings();
+  </script>
+</body>
+</html>
