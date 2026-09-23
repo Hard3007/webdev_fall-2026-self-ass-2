@@ -4,7 +4,7 @@ A web page that loads and displays the first 50 Airbnb listings in San Francisco
 
 ## Live demo
 
-https://YOUR-GITHUB-USERNAME.github.io/fogline-stays
+https://hard3007.github.io/webdev_fall-2026-self-ass-2/
 
 ## What it does
 
