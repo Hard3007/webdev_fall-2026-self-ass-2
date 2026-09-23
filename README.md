@@ -42,5 +42,5 @@ HTML, CSS, JavaScript, JSON, GitHub Pages
 
 ## Course
 
-CS5610 Web Development, Northeastern University, Spring 2026
+CS5610 Web Development, Northeastern University, Fall 2026
 Hard Gondaliya
